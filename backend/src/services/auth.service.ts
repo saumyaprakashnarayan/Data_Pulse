@@ -12,39 +12,6 @@ export interface AuthPayload {
   customerName?: string;
 }
 
-const defaultUsers = [
-  {
-    email: 'admin@example.com',
-    password: 'admin1234',
-    role: 'admin' as const,
-  },
-  {
-    email: 'user@example.com',
-    password: 'user1234',
-    role: 'user' as const,
-  },
-];
-
-// export const seedDefaultUsers = async () => {
-//   if (env.NODE_ENV === 'production') {
-//     return;
-//   }
-
-  for (const user of defaultUsers) {
-    const exists = await UserModel.exists({ email: user.email });
-    if (exists) {
-      continue;
-    }
-
-    const passwordHash = await bcrypt.hash(user.password, 10);
-    await UserModel.create({
-      email: user.email,
-      passwordHash,
-      role: user.role,
-    });
-  }
-};
-
 export const hashTokenId = (tokenId: string) =>
   crypto.createHash('sha256').update(tokenId).digest('hex');
 
@@ -59,26 +26,29 @@ const getTokenExpiresAt = (token: string) => {
 };
 
 export const signIn = async (email: string, password: string) => {
-  const user = await UserModel.findOne({ email: email.toLowerCase().trim() }).select(
-    '+passwordHash',
-  );
+  const user = await UserModel.findOne({
+    email: email.toLowerCase().trim(),
+  }).select('+passwordHash');
 
   if (!user) {
     throw new Error('Invalid credentials');
   }
 
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+
   if (!isValidPassword) {
     throw new Error('Invalid credentials');
   }
 
   const tokenId = crypto.randomUUID();
+
   const authPayload = {
     email: user.email,
     role: user.role,
     customerId: user.customerId,
     customerName: user.customerName,
   } satisfies AuthPayload;
+
   const token = jwt.sign(
     authPayload,
     env.JWT_SECRET as jwt.Secret,
@@ -87,6 +57,7 @@ export const signIn = async (email: string, password: string) => {
       jwtid: tokenId,
     },
   );
+
   const expiresAt = getTokenExpiresAt(token);
 
   await AuthSessionModel.create({
@@ -117,7 +88,10 @@ export const getActiveAuthSessionByTokenId = async (tokenId: string) =>
     .lean();
 
 export const touchAuthSession = async (authSessionId: string) => {
-  await AuthSessionModel.updateOne({ _id: authSessionId }, { $set: { lastSeenAt: new Date() } });
+  await AuthSessionModel.updateOne(
+    { _id: authSessionId },
+    { $set: { lastSeenAt: new Date() } },
+  );
 };
 
 export const revokeAuthSession = async (authSessionId: string) => {
