@@ -179,34 +179,8 @@ Returns unique tracked page URLs.
 
 Returns dashboard totals for sessions, events, pages, page views, clicks, and recent activity.
 
-## Deployment
 
-### MongoDB Atlas
 
-1. Create a MongoDB Atlas cluster.
-2. Add a database user and password.
-3. Allow the Render backend IP range or `0.0.0.0/0` for a demo environment.
-4. Copy the connection string into `MONGODB_URI`.
-
-### Render Backend
-
-1. Create a new Web Service from this repository.
-2. Set root directory to `backend` if deploying the backend alone, or keep repository root and use the workspace commands below.
-3. Build command from repository root: `npm install && npm run build -w backend`
-4. Start command from repository root: `npm start -w backend`
-5. Add environment variables from `backend/.env.example`.
-6. Set `CORS_ORIGIN` to the Vercel frontend URL.
-
-### Vercel Frontend
-
-1. Create a Vercel project from this repository.
-2. Set root directory to `frontend`.
-3. Build command: `npm run build`
-4. Output directory: `dist`
-5. Add `VITE_API_BASE_URL=https://your-render-service.onrender.com/api`.
-6. Add `VITE_TRACKING_ENDPOINT=https://your-render-service.onrender.com/api/events`.
-
-Because the Vite config uses `../tracker` as the public directory, deploying from the repository root is the smoothest path. If Vercel is configured with `frontend` as the root, copy `tracker/tracker.js` into that deployment or adjust `publicDir` for that environment.
 
 ## Database Design
 
