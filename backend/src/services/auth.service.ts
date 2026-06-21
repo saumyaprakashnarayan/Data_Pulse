@@ -25,10 +25,10 @@ const defaultUsers = [
   },
 ];
 
-export const seedDefaultUsers = async () => {
-  if (env.NODE_ENV === 'production') {
-    return;
-  }
+// export const seedDefaultUsers = async () => {
+//   if (env.NODE_ENV === 'production') {
+//     return;
+//   }
 
   for (const user of defaultUsers) {
     const exists = await UserModel.exists({ email: user.email });
