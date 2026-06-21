@@ -1,13 +1,11 @@
 import { env } from './config/env';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import { app } from './app';
-import { seedDefaultUsers } from './services/auth.service';
 import { logger } from './utils/logger';
 
 const startServer = async () => {
   try {
     await connectDatabase();
-    await seedDefaultUsers();
 
     const server = app.listen(env.PORT, () => {
       logger.info(`API server listening on port ${env.PORT}`);
@@ -15,6 +13,7 @@ const startServer = async () => {
 
     const shutdown = async (signal: NodeJS.Signals) => {
       logger.info(`Received ${signal}; closing server`);
+
       server.close(() => {
         void disconnectDatabase().finally(() => {
           process.exit(0);
